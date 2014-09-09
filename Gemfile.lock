@@ -7,6 +7,13 @@ GIT
       source_map
       sprockets
 
+GIT
+  remote: git://github.com/yeahrb/yeah.git
+  revision: 170121df4087a5a255b99432a54ac78d6cfb8207
+  ref: 170121
+  specs:
+    yeah (0.3.5)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -22,11 +29,10 @@ GEM
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
     tilt (1.4.1)
-    yeah (0.3.5)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   opal!
-  yeah (~> 0.3.5)
+  yeah!

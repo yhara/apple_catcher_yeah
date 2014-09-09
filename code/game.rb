@@ -88,6 +88,7 @@ class AppleCatcher < Game
     @context = Context.new(display, keyboard)
     @player = Player.new(@context)
     @actors = [@player]
+    @score = 0
     display.size = V[640, 480]
   end
 
@@ -103,17 +104,25 @@ class AppleCatcher < Game
       if x.is_a?(Item)
         if x.hit?(@player)
           x.alive = false
+          @score += 1 if x.is_a?(Apple)
         end
       end
     end
     @actors.delete_if{|x| not x.alive}
 
-    # Update display
+    # Render background
     display.clear
     display.fill_color = C[128, 255, 255]
     display.fill_rectangle(V[0, 0], display.size)
     display.fill_color = C[0, 128, 0]
     display.fill_rectangle(V[0, 400], V[640,180])
+
+    # Render characters
     @actors.each{|x| x.render(@context)}
+
+    # Render texts
+    display.fill_color = C[0, 0, 0]
+    display.text_size = 24
+    display.fill_text("SCORE: #{@score}", V[0, 30])
   end
 end
