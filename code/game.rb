@@ -1,3 +1,5 @@
+require 'math'
+
 class AppleCatcher < Game
   Context = Struct.new(:display, :keyboard)
 
@@ -24,6 +26,7 @@ class AppleCatcher < Game
       @y = 400 - 32
       @anim = 0
     end
+    attr_reader :x, :y
 
     def act(c)
       if c.keyboard.pressing?(:left)
@@ -59,26 +62,53 @@ class AppleCatcher < Game
 
   class Apple < Item
     def self.image; @image ||= Image["images/apple.png"]; end
+
+    def hit?(player)
+      xdiff = (@x+38) - (player.x+16)
+      ydiff = (@y+48) - (player.y+16)
+      distance = Math.sqrt(xdiff**2 + ydiff**2)
+
+      distance < (40+16)
+    end
   end
 
   class Bomb < Item
     def self.image; @image ||= Image["images/bomb.png"]; end
+
+    def hit?(player)
+      xdiff = (@x+36) - (player.x+16)
+      ydiff = (@y+54) - (player.y+16)
+      distance = Math.sqrt(xdiff**2 + ydiff**2)
+
+      distance < (34+8)
+    end
   end
 
   def setup
     @context = Context.new(display, keyboard)
-    @actors = [Player.new(@context)]
+    @player = Player.new(@context)
+    @actors = [@player]
     display.size = V[640, 480]
   end
 
   def update(elapsed)
+    # Create new items if needed
     while @actors.length < 6
       @actors.push([Apple, Bomb].sample.new(@context))
     end
 
-    @actors.each{|x| x.act(@context)}
+    # Call #act
+    @actors.each do |x|
+      x.act(@context)
+      if x.is_a?(Item)
+        if x.hit?(@player)
+          x.alive = false
+        end
+      end
+    end
     @actors.delete_if{|x| not x.alive}
 
+    # Update display
     display.clear
     display.fill_color = C[128, 255, 255]
     display.fill_rectangle(V[0, 0], display.size)
