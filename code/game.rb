@@ -19,7 +19,7 @@ class AppleCatcher < Game
   class Player < Actor
     def initialize(c)
       super
-      @image = Image["images/noschar.bmp"]
+      @image = Image["images/noschar.png"]
       @x = 240
       @y = 400 - 32
       @anim = 0
@@ -58,11 +58,11 @@ class AppleCatcher < Game
   end
 
   class Apple < Item
-    def self.image; @image ||= Image["images/ringo.bmp"]; end
+    def self.image; @image ||= Image["images/apple.png"]; end
   end
 
   class Bomb < Item
-    def self.image; @image ||= Image["images/bomb.bmp"]; end
+    def self.image; @image ||= Image["images/bomb.png"]; end
   end
 
   def setup
