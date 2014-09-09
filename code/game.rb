@@ -62,6 +62,7 @@ class AppleCatcher < Game
 
   class Apple < Item
     def self.image; @image ||= Image["images/apple.png"]; end
+    def self.hit_sound; @sound ||= Sound["sounds/get.wav"]; end
 
     def hit?(player)
       xdiff = (@x+38) - (player.x+16)
@@ -74,6 +75,7 @@ class AppleCatcher < Game
 
   class Bomb < Item
     def self.image; @image ||= Image["images/bomb.png"]; end
+    def self.hit_sound; @sound ||= Sound["sounds/bom08.wav"]; end
 
     def hit?(player)
       xdiff = (@x+36) - (player.x+16)
@@ -84,12 +86,22 @@ class AppleCatcher < Game
     end
   end
 
+  # Game main -----------------------------------------------
+
   def setup
     @context = Context.new(display, keyboard)
+    display.size = V[640, 480]
+    @high_score = 0
+    @play_sound = false
+
+    reset_game
+  end
+
+  def reset_game
     @player = Player.new(@context)
     @actors = [@player]
     @score = 0
-    display.size = V[640, 480]
+    @state = :playing
   end
 
   def update(elapsed)
@@ -98,13 +110,30 @@ class AppleCatcher < Game
       @actors.push([Apple, Bomb].sample.new(@context))
     end
 
+    # System keys
+    if keyboard.pressed?(:enter)
+      reset_game
+    end
+    if keyboard.pressed?(:s)
+      @play_sound = !@play_sound
+    end
+
     # Call #act
     @actors.each do |x|
       x.act(@context)
-      if x.is_a?(Item)
+
+      if x.is_a?(Item) && @state == :playing
         if x.hit?(@player)
           x.alive = false
-          @score += 1 if x.is_a?(Apple)
+          x.class.hit_sound.play if @play_sound
+          case x
+          when Apple
+            @score += 1
+          when Bomb
+            @state = :gameover
+            @player.alive = false
+            @high_score = [@high_score, @score].max
+          end
         end
       end
     end
@@ -123,6 +152,13 @@ class AppleCatcher < Game
     # Render texts
     display.fill_color = C[0, 0, 0]
     display.text_size = 24
-    display.fill_text("SCORE: #{@score}", V[0, 30])
+    display.fill_text("SCORE: #{@score}  HIGHSCORE: #{@high_score}",
+                      V[0, 30])
+    if @state == :gameover
+      display.fill_text("GAME OVER (PRESS ENTER)", V[0, 120])
+    end
+    display.text_size = 12
+    display.fill_color = C[255, 255, 255]
+    display.fill_text("[S] sound(#{@play_sound})", V[0, 480])
   end
 end
