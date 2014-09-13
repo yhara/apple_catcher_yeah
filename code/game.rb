@@ -107,7 +107,8 @@ class AppleCatcher < Game
   def update(elapsed)
     # Create new items if needed
     while @actors.length < 6
-      @actors.push([Apple, Bomb].sample.new(@context))
+      item = (rand(100) < 80) ? Bomb.new(@context) : Apple.new(@context)
+      @actors.push(item)
     end
 
     # System keys
